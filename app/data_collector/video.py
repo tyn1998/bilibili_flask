@@ -1,12 +1,8 @@
-from . import api
-from flask import jsonify
-from flask import request
 import requests
-import time
+from . import assistance
 from xml.etree import ElementTree
 
 
-@api.route('/videos/<string:av>', methods=['GET'])
 def video_info(av):
     r1 = requests.get('http://api.bilibili.com/archive_stat/stat', params={'aid': av})
     r2 = requests.get('https://api.bilibili.com/x/web-interface/view', params={'aid': av})
@@ -36,13 +32,9 @@ def video_info(av):
     danmus = []
     for item in root.findall('d'):
         attributes = item.attrib['p'].split(',')
-        # 将时间戳日期格式转为普通格式
-        timeStamp = int(attributes[4])
-        timeArray = time.localtime(timeStamp)
-        otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
         danmu = {
             'time': attributes[0],
-            'beijing_time': otherStyleTime,
+            'beijing_time': assistance.time_reformat(int(attributes[4])),
             'coded_uid': attributes[6],
             'content': item.text
         }
@@ -70,17 +62,13 @@ def video_info(av):
                 pass
             else:
                 for sub_item in item['replies']:
-                    # 将时间戳日期格式转为普通格式
-                    timeStamp = sub_item['ctime']
-                    timeArray = time.localtime(timeStamp)
-                    otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
                     sub_reply = {
                         'rpid': sub_item['rpid'],
                         'root': sub_item['root'],
                         'parent': sub_item['parent'],
                         'dialog': sub_item['dialog'],
                         'content': sub_item['content']['message'],
-                        'time': otherStyleTime,
+                        'time': assistance.time_reformat(sub_item['ctime']),
                         'uid': sub_item['member']['mid'],
                         'uname': sub_item['member']['uname'],
                         'sex': sub_item['member']['sex'],
@@ -88,14 +76,10 @@ def video_info(av):
                     }
                     sub_replies.append(sub_reply)
 
-            # 将时间戳日期格式转为普通格式
-            timeStamp = item['ctime']
-            timeArray = time.localtime(timeStamp)
-            otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
             r = {
                 'rpid': item['rpid'],
                 'content': item['content']['message'],
-                'time': otherStyleTime,
+                'time': assistance.time_reformat(item['ctime']),
                 'uid': item['member']['mid'],
                 'uname': item['member']['uname'],
                 'sex': item['member']['sex'],
@@ -111,9 +95,9 @@ def video_info(av):
         else:
             params['pn'] = params['pn'] + 1
 
-
     info = {
         'av': json_r1['data']['aid'],
+        'title': json_r2['data']['title'],
         'view': json_r1['data']['view'],
         'like': json_r1['data']['like'],
         'favorite': json_r1['data']['favorite'],
@@ -126,4 +110,4 @@ def video_info(av):
         'replies': replies,
         'danmus': danmus
     }
-    return jsonify(info)
+    return info

@@ -1,10 +1,7 @@
-from . import api
-from flask import jsonify
-from flask import request
 import requests
-import time
+from . import assistance
 
-@api.route('/bilibiliers/<string:uid>', methods=['GET'])
+
 def bilibilier_info(uid):
     r1 = requests.get('https://api.bilibili.com/x/space/acc/info', params={'mid': uid})
     """
@@ -46,16 +43,12 @@ def bilibilier_info(uid):
 
         vlist = json_r4['data']['list']['vlist']
         for item in vlist:
-            # 将时间戳日期格式转为普通格式
-            timeStamp = item['created']
-            timeArray = time.localtime(timeStamp)
-            otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
             v = {
                 'av': item['aid'],
                 'title': item['title'],
                 'description': item['description'],
                 'length': item['length'],
-                'created': otherStyleTime,
+                'created': assistance.time_reformat(item['created']),
                 'play': item['play'],
                 'comment': item['comment'],
                 'pic': item['pic']
@@ -71,4 +64,4 @@ def bilibilier_info(uid):
 
     info['videos'] = videos
 
-    return jsonify(info)
+    return info
