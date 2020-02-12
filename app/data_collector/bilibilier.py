@@ -1,5 +1,5 @@
 import requests
-from . import assistance
+from app.data_collector import assistance
 
 
 def bilibilier_info(uid):
@@ -62,6 +62,7 @@ def bilibilier_info(uid):
         else:
             params['pn'] = params['pn'] + 1
 
+    info['video_count'] = page_info['count']
     info['videos'] = videos
 
     return info

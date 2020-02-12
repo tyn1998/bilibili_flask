@@ -1,7 +1,4 @@
-from app import app
-from flask import current_app
-from app.api.views import bilibilier_info
+from app.db.DB import DB
 
 
-with app.app_context():
-    print(bilibilier_info('4085626'))
+DB.reset()

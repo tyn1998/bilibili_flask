@@ -1,5 +1,7 @@
 from flask import Flask
 from flask_cors import *
+from .api import api as api_blueprint
+
 
 app = Flask(__name__)
 
@@ -8,7 +10,5 @@ app.config['JSON_SORT_KEYS'] = False
 
 # 解决跨域
 CORS(app, supports_credentials=True)
-
-from .api import api as api_blueprint
 
 app.register_blueprint(api_blueprint, url_prefix='/api')
