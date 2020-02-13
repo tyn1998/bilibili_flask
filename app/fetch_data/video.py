@@ -1,5 +1,5 @@
 import requests
-from app.data_collector import assistance
+from app.fetch_data import assistance
 from xml.etree import ElementTree
 
 

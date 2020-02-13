@@ -1,5 +1,5 @@
 import requests
-from app.data_collector import assistance
+from app.fetch_data import assistance
 
 
 def bilibilier_info(uid):
@@ -22,7 +22,7 @@ def bilibilier_info(uid):
         'birthday': json_r1['data']['birthday'],
         'sign': json_r1['data']['sign'],
         'face_photo_url': json_r1['data']['face'],
-        'top_phote_utl': json_r1['data']['top_photo'],
+        'top_photo_url': json_r1['data']['top_photo'],
         'following': json_r3['data']['following'],
         'follower': json_r3['data']['follower'],
     }

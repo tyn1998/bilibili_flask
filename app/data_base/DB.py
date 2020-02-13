@@ -4,11 +4,11 @@ import os
 
 
 class DB:
-    def __init__(self, host='localhost', port=3306, user='root', pwd='', db='', charset='utf8'):
+    def __init__(self, host='localhost', port=3306, user='root', passwd='', db='', charset='utf8'):
         self.host = host
         self.port = port
         self.user = user
-        self.pwd = pwd
+        self.passwd = passwd
         self.db = db
         self.charset = charset
         self.conn = None
@@ -17,12 +17,12 @@ class DB:
     def __enter__(self):
         # 建立连接
         self.conn = pymysql.connect(
-            self.host,
-            self.port,
-            self.user,
-            self.pwd,
-            self.db,
-            self.charset
+            host=self.host,
+            port=self.port,
+            user=self.user,
+            passwd=self.passwd,
+            db=self.db,
+            charset=self.charset
         )
         # 创建游标，操作设置为字典类型
         self.cur = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
