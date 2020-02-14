@@ -5,23 +5,17 @@ db = DB(passwd='TYn13646825688', db='bilibili_flask')
 
 
 def delete(uid):
-    sql = 'delete from bilibiliers where uid = %s'
+    sql1 = 'delete from bilibiliers where uid = %s'
+    sql2 = 'delete from videos where uid = %s'
     params = (uid,)
     with db as cur:
         try:
-            cur.execute(sql, params)
+            cur.execute(sql1, params)
+            cur.execute(sql2, params)
             db.conn.commit()
         except Exception as e:
             print(e)
-
-    sql = 'delete from videos where uid = %s'
-    params = (uid,)
-    with db as cur:
-        try:
-            cur.execute(sql, params)
-            db.conn.commit()
-        except Exception as e:
-            print(e)
+            db.conn.rollback()
 
 
 def write(uid):
@@ -94,7 +88,6 @@ def read(uid):
             info['video_count'] = result['video_count']
         except Exception as e:
             print(e)
-            db.conn.rollback()
 
     videos = []
     sql = 'select * from videos where uid = %s'
@@ -116,7 +109,6 @@ def read(uid):
                 videos.append(video)
         except Exception as e:
             print(e)
-            db.conn.rollback()
 
     info['videos'] = videos
     return info
