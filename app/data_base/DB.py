@@ -29,11 +29,31 @@ class DB:
         # 返回游标
         return self.cur
 
-    def __exit__(self, type, value, trace):
+    def __exit__(self):
         # 关闭游标
         self.cur.close()
         # 关闭数据库连接
         self.conn.close()
+
+    def execute(self, sql, params):
+        cur = self.__enter__()
+        if sql.split(' ', 1)[0] != 'select':
+            try:
+                cur.execute(sql, params)
+                result = cur.fetchall()
+                self.conn.commit()
+            except Exception as e:
+                print(e)
+                self.conn.rollback()
+        else:   # 除了select语句，其他需要"事务"
+            try:
+                cur.execute(sql, params)
+                result = cur.fetchall()
+            except Exception as e:
+                print(e)
+        self.__exit__()
+        return result
+
 
     """
         下面这个类函数一点都不类函数，
