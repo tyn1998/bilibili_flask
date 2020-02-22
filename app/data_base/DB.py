@@ -36,7 +36,7 @@ class DB:
         # 关闭数据库连接
         self.conn.close()
 
-    def execute(self, sql, params):
+    def execute(self, sql, params=None):
         cur = self.__enter__()
         if sql.split(' ', 1)[0] != 'select':
             try:
