@@ -1,4 +1,4 @@
-from app import fetch_data
+from app.fetch_data import video
 from app.data_base.DB import DB
 
 db = DB(passwd='TYn13646825688', db='bilibili_flask')
@@ -19,7 +19,7 @@ def delete(av):
 
 
 def write(av):
-    v_info = fetch_data.video.video_info(av)
+    v_info = video.video_info(av)
 
     # 先清除再写入
     delete(av)
