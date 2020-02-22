@@ -1,8 +1,10 @@
 import requests
 from app.fetch_data import assistance
+import datetime
 
 
 def bilibilier_info(uid):
+    print('----------------------  fetching ', uid, '  -------------------------')
     r1 = requests.get('https://api.bilibili.com/x/space/acc/info', params={'mid': uid})
     """
         r2的api返回总播放数和总赞数
@@ -65,4 +67,5 @@ def bilibilier_info(uid):
     info['video_count'] = page_info['count']
     info['videos'] = videos
 
+    print('[%s fetched]' % datetime.datetime.now())
     return info

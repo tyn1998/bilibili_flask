@@ -1,6 +1,7 @@
 import requests
 from app.fetch_data import assistance
 from xml.etree import ElementTree
+import datetime
 
 
 def video_info(av):
@@ -116,5 +117,5 @@ def video_info(av):
         'replies': replies,
         'danmus': danmus
     }
-    print('------------------------------------------------------------')
+    print('[%s fetched]' % datetime.datetime.now())
     return info
