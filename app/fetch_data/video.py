@@ -4,6 +4,7 @@ from xml.etree import ElementTree
 
 
 def video_info(av):
+    print('----------------------  fetching ', av, '  -------------------------')
     r1 = requests.get('http://api.bilibili.com/archive_stat/stat', params={'aid': av})
     r2 = requests.get('https://api.bilibili.com/x/web-interface/view', params={'aid': av})
     r3 = requests.get('https://api.bilibili.com/x/tag/archive/tags', params={'aid': av})
@@ -55,38 +56,43 @@ def video_info(av):
         r5 = requests.get(url, params=params)
         json_r5 = r5.json()
 
-        rlist = json_r5['data']['replies']
-        for item in rlist:
-            sub_replies = []
-            if item['replies'] is None:
-                pass
-            else:
-                for sub_item in item['replies']:
-                    sub_reply = {
-                        'rpid': sub_item['rpid'],
-                        'root': sub_item['root'],
-                        'parent': sub_item['parent'],
-                        'dialog': sub_item['dialog'],
-                        'content': sub_item['content']['message'],
-                        'time': assistance.time_reformat(sub_item['ctime']),
-                        'uid': sub_item['member']['mid'],
-                        'uname': sub_item['member']['uname'],
-                        'sex': sub_item['member']['sex'],
-                        'like': sub_item['like']
-                    }
-                    sub_replies.append(sub_reply)
+        if json_r5['data'] is not None and json_r5['data']['replies'] is not None:
+            rlist = json_r5['data']['replies']
+            for item in rlist:
+                sub_replies = []
+                if item['replies'] is None:
+                    pass
+                else:
+                    for sub_item in item['replies']:
+                        sub_reply = {
+                            'rpid': sub_item['rpid'],
+                            'root': sub_item['root'],
+                            'parent': sub_item['parent'],
+                            'dialog': sub_item['dialog'],
+                            'content': sub_item['content']['message'],
+                            'time': assistance.time_reformat(sub_item['ctime']),
+                            'uid': sub_item['member']['mid'],
+                            'uname': sub_item['member']['uname'],
+                            'sex': sub_item['member']['sex'],
+                            'like': sub_item['like']
+                        }
+                        sub_replies.append(sub_reply)
 
-            r = {
-                'rpid': item['rpid'],
-                'content': item['content']['message'],
-                'time': assistance.time_reformat(item['ctime']),
-                'uid': item['member']['mid'],
-                'uname': item['member']['uname'],
-                'sex': item['member']['sex'],
-                'like': item['like'],
-                'sub_replies': sub_replies
-            }
-            replies.append(r)
+                r = {
+                    'rpid': item['rpid'],
+                    'content': item['content']['message'],
+                    'time': assistance.time_reformat(item['ctime']),
+                    'uid': item['member']['mid'],
+                    'uname': item['member']['uname'],
+                    'sex': item['member']['sex'],
+                    'like': item['like'],
+                    'sub_replies': sub_replies
+                }
+                replies.append(r)
+        else:
+            # 评论区关闭的情况，此时data为None
+            print('评论区关闭的av号：', av)
+            break
 
         # 判断是否还有下一页
         page_info = json_r5['data']['page']
@@ -110,4 +116,5 @@ def video_info(av):
         'replies': replies,
         'danmus': danmus
     }
+    print('------------------------------------------------------------')
     return info
