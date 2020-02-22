@@ -8,14 +8,8 @@ def delete(uid):
     sql1 = 'delete from bilibiliers where uid = %s'
     sql2 = 'delete from videos where uid = %s'
     params = (uid,)
-    with db as cur:
-        try:
-            cur.execute(sql1, params)
-            cur.execute(sql2, params)
-            db.conn.commit()
-        except Exception as e:
-            print(e)
-            db.conn.rollback()
+    db.execute(sql1, params)
+    db.execute(sql2, params)
 
 
 def write(uid):
@@ -37,16 +31,12 @@ def write(uid):
         b_info['follower'],
         b_info['video_count']
     )
-    with db as cur:
-        try:
-            cur.execute(sql, params)
-            db.conn.commit()
-        except Exception as e:
-            print(e)
-            db.conn.rollback()
+    db.execute(sql, params)
 
     for video in b_info['videos']:
         sql = 'insert into videos values(%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+        if video['play'] == '--':
+            video['play'] = -1
         params = (
             video['av'],
             b_info['uid'],
@@ -58,13 +48,7 @@ def write(uid):
             video['comment'],
             video['pic'],
         )
-        with db as cur:
-            try:
-                cur.execute(sql, params)
-                db.conn.commit()
-            except Exception as e:
-                print(e)
-                db.conn.rollback()
+        db.execute(sql, params)
 
 
 def read(uid):
@@ -72,43 +56,40 @@ def read(uid):
 
     sql = 'select * from bilibiliers where uid = %s'
     params = (uid,)
-    with db as cur:
-        try:
-            cur.execute(sql, params)
-            result = cur.fetchone()
-            info['uid'] = result['uid']
-            info['name'] = result['uname']
-            info['sex'] = result['sex']
-            info['birthday'] = result['birthday']
-            info['sign'] = result['sign']
-            info['face_photo_url'] = result['face_photo_url']
-            info['top_photo_url'] = result['top_photo_url']
-            info['following'] = result['following_count']
-            info['follower'] = result['follower_count']
-            info['video_count'] = result['video_count']
-        except Exception as e:
-            print(e)
+    try:
+        result = db.execute(sql, params)[0]
+        info['uid'] = result['uid']
+        info['name'] = result['uname']
+        info['sex'] = result['sex']
+        info['birthday'] = result['birthday']
+        info['sign'] = result['sign']
+        info['face_photo_url'] = result['face_photo_url']
+        info['top_photo_url'] = result['top_photo_url']
+        info['following'] = result['following_count']
+        info['follower'] = result['follower_count']
+        info['video_count'] = result['video_count']
+    except Exception as e:
+        print(e)
 
     videos = []
     sql = 'select * from videos where uid = %s'
     params = (uid,)
-    with db as cur:
-        try:
-            cur.execute(sql, params)
-            for item in cur.fetchall():
-                video = {
-                    'av': item['av'],
-                    'title': item['title'],
-                    'description': item['des'],
-                    'length': item['length'],
-                    'created': item['created'],
-                    'play': item['play_count'],
-                    'comment': item['comment_count'],
-                    'pic': item['cover_photo_url']
-                }
-                videos.append(video)
-        except Exception as e:
-            print(e)
+    try:
+        result = db.execute(sql, params)
+        for item in result:
+            video = {
+                'av': item['av'],
+                'title': item['title'],
+                'description': item['des'],
+                'length': item['length'],
+                'created': item['created'],
+                'play': item['play_count'],
+                'comment': item['comment_count'],
+                'pic': item['cover_photo_url']
+            }
+            videos.append(video)
+    except Exception as e:
+        print(e)
 
     info['videos'] = videos
     return info
