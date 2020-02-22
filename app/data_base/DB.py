@@ -4,7 +4,8 @@ import os
 
 
 class DB:
-    def __init__(self, host='localhost', port=3306, user='root', passwd='', db='', charset='utf8'):
+    # charset设置为utf8mb4，这样才能操作4字节的emoji表情
+    def __init__(self, host='localhost', port=3306, user='root', passwd='', db='', charset='utf8mb4'):
         self.host = host
         self.port = port
         self.user = user
@@ -42,6 +43,7 @@ class DB:
                 cur.execute(sql, params)
                 result = cur.fetchall()
                 self.conn.commit()
+                return result
             except Exception as e:
                 print(e)
                 self.conn.rollback()
@@ -49,11 +51,10 @@ class DB:
             try:
                 cur.execute(sql, params)
                 result = cur.fetchall()
+                return result
             except Exception as e:
                 print(e)
         self.__exit__()
-        return result
-
 
     """
         下面这个类函数一点都不类函数，
