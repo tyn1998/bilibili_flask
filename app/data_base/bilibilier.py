@@ -1,4 +1,5 @@
-from app import fetch_data
+from app.fetch_data import bilibilier
+from app.data_base import video
 from app.data_base.DB import DB
 
 db = DB(passwd='TYn13646825688', db='bilibili_flask')
@@ -13,33 +14,33 @@ def delete(uid):
 
 
 def write(uid):
-    b_info = fetch_data.bilibilier.bilibilier_info(uid)
+    b = bilibilier.bilibilier_info(uid)
 
     # 先清除再写入
     delete(uid)
 
     sql = 'insert into bilibiliers values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
     params = (
-        b_info['uid'],
-        b_info['name'],
-        b_info['sex'],
-        b_info['birthday'],
-        b_info['sign'],
-        b_info['face_photo_url'],
-        b_info['top_photo_url'],
-        b_info['following'],
-        b_info['follower'],
-        b_info['video_count']
+        b['uid'],
+        b['name'],
+        b['sex'],
+        b['birthday'],
+        b['sign'],
+        b['face_photo_url'],
+        b['top_photo_url'],
+        b['following'],
+        b['follower'],
+        b['video_count']
     )
     db.execute(sql, params)
 
-    for video in b_info['videos']:
+    for video in b['videos']:
         sql = 'insert into videos values(%s,%s,%s,%s,%s,%s,%s,%s,%s)'
         if video['play'] == '--':
             video['play'] = -1
         params = (
             video['av'],
-            b_info['uid'],
+            b['uid'],
             video['title'],
             video['description'],
             video['length'],
@@ -93,3 +94,29 @@ def read(uid):
 
     info['videos'] = videos
     return info
+
+
+def write_all_videos(uid):
+    b = read(uid)
+    for item in b['videos']:
+        try:
+            video.write(item['av'])
+        except Exception as e:
+            print(e)
+
+
+def write_remained_videos(uid):
+    b = read(uid)
+    try:
+        sql = 'select av from v_basic where av in (select av from videos where uid = %s)' % uid
+        result = db.execute(sql)
+        for item in b['videos']:
+            tmp = {'av': item['av']}
+            if tmp not in result:
+                try:
+                    video.write(item['av'])
+                except Exception as e:
+                    print(e)
+    except Exception as e:
+        print(e)
+
