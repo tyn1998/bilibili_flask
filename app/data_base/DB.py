@@ -65,7 +65,7 @@ class DB:
     """
     @classmethod
     def reset(cls):
-        root_path = os.path.abspath(os.path.join(os.getcwd(), "../.."))
+        root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir))
         file_path = root_path + '/db_init.sql'
         with open(file_path, 'r', encoding='utf8') as sql_file:
             file_parse = sqlparse.parse(sql_file.read().strip())
