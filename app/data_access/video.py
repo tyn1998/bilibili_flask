@@ -1,5 +1,8 @@
-from app.fetch_data import video
-from app.data_base.DB import DB
+import os
+from datetime import datetime
+from app.data_fetch import video
+from app.data_access.DB import DB
+from app.data_analyse import video as v_analyse
 
 db = DB(passwd='TYn13646825688', db='bilibili_flask')
 
@@ -189,3 +192,74 @@ def read(av):
     info['danmus'] = danmus
 
     return info
+
+
+def write_comprehensive(av):
+    print(datetime.now(), 'write_comprehensive<%s> ' % av)
+    v_info = read(av)
+    print(datetime.now(), 'v_info has been read! ')
+    tags = ','.join(tag['tag_name'] for tag in v_info['tags'])
+
+    sql = 'select * from videos where av = %s' % av
+    videos = db.execute(sql)[0]
+
+    danmu_v_time_distribution = v_analyse.danmu_v_time_distribution(v_info['danmus'], videos['length'])
+
+    danmu_bj_time_distribution = v_analyse.danmu_bj_time_distribution(v_info['danmus'], videos['created'])
+
+    reply_bj_time_distribution = v_analyse.reply_bj_time_distribution(v_info['replies'], videos['created'])
+
+    reply_sex_distribution = v_analyse.reply_sex_distribution(v_info['replies'])
+
+    income = v_analyse.income(v_info['view'])
+
+    root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir))
+
+    text_danmus = ','.join(danmu['content'] for danmu in v_info['danmus'])
+    path_danmus = root_path + '/word_cloud_images/av%s_d.png' % av
+    v_analyse.word_cloud(text_danmus, path_danmus)
+
+    text_replies = ','.join(reply['content'] for reply in v_info['replies'])
+    path_replies = root_path + '/word_cloud_images/av%s_r.png' % av
+    v_analyse.word_cloud(text_replies, path_replies)
+
+    sql = 'insert into v_comprehensive values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+    params = (
+        v_info['av'],
+        v_info['title'],
+        v_info['view'],
+        v_info['like'],
+        v_info['favorite'],
+        v_info['coin'],
+        v_info['share'],
+        v_info['danmu_count'],
+        v_info['reply_count'],
+        v_info['description'],
+        tags,
+        videos['length'],
+        videos['created'],
+        videos['cover_photo_url'],
+        danmu_v_time_distribution,
+        danmu_bj_time_distribution,
+        reply_bj_time_distribution,
+        reply_sex_distribution,
+        income
+    )
+    db.execute(sql, params)
+    print(datetime.now(), '# ')
+
+
+def read_comprehensive(av):
+    sql = 'select * from v_comprehensive where av = %s' % av
+    try:
+        result = db.execute(sql)[0]
+        return result
+    except Exception as e:
+        print(e)
+        return 'read_comprehensive(%s) failed!' % av
+
+
+def read_image_stream(path):
+    with open(path, 'rb') as f:
+        image = f.read()
+    return image
