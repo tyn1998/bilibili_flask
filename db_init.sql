@@ -93,6 +93,30 @@ create table v_danmus
 	content varchar(200) not null
 );
 
+drop table if exists v_comprehensive;
+create table v_comprehensive
+(
+	av varchar(20) not null primary key,
+	title varchar(100) not null,
+	view_count int not null,
+	like_count int not null,
+	favorite_count int not null,
+	coin_count int not null,
+	share_count int not null,
+	danmu_count int not null,
+	reply_count int not null,
+	des varchar(1000) not null,
+	tags varchar(500) not null,
+	length varchar(10) not null,
+	created varchar(20) not null,
+	cover_photo_url varchar(200) not null,
+	danmu_v_time_distribution varchar(500),
+	danmu_bj_time_distribution varchar(500),
+	reply_bj_time_distribution varchar(500),
+	reply_sex_distribution varchar(50),
+	income int not null
+);
+
 create index index_uid on videos(uid asc);
 create index index_av on videos(av asc);
 create index index_av on v_basic(av asc);
@@ -100,3 +124,4 @@ create index index_av on v_tags(av asc);
 create index index_av on v_replies(av asc);
 create index index_av on v_subreplies(av asc);
 create index index_av on v_danmus(av asc);
+create index index_av on v_comprehensive(av asc);
