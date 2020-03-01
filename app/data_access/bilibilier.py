@@ -1,6 +1,6 @@
-from app.fetch_data import bilibilier
-from app.data_base import video
-from app.data_base.DB import DB
+from app.data_fetch import bilibilier
+from app.data_access import video
+from app.data_access.DB import DB
 
 db = DB(passwd='TYn13646825688', db='bilibili_flask')
 
@@ -120,3 +120,23 @@ def write_remained_videos(uid):
     except Exception as e:
         print(e)
 
+
+def read_comprehensive(uid):
+    sql = 'select * from bilibiliers where uid = %s' % uid
+    b = db.execute(sql)[0]
+    sql = 'select * from v_basic where av in (select av from videos where uid = %s)' % uid
+    v = db.execute(sql)
+    b_comprehensive = {
+        'uid': b['uid'],
+        'uname': b['uname'],
+        'sex': b['sex'],
+        'birthday': b['birthday'],
+        'sign': b['sign'],
+        'face_photo_url': b['face_photo_url'],
+        'top_photo_url': b['top_photo_url'],
+        'following_count': b['following_count'],
+        'follower_count': b['follower_count'],
+        'video_count': b['video_count'],
+        'v_basic': v
+    }
+    return b_comprehensive
