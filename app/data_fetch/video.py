@@ -1,5 +1,5 @@
 import requests
-from app.fetch_data import assistance
+from app.data_fetch import assistance
 from xml.etree import ElementTree
 import datetime
 
