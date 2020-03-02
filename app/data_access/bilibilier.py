@@ -1,6 +1,7 @@
 from app.data_fetch import bilibilier
 from app.data_access import video
 from app.data_access.DB import DB
+from datetime import datetime
 
 db = DB(passwd='TYn13646825688', db='bilibili_flask')
 
@@ -140,3 +141,40 @@ def read_comprehensive(uid):
         'v_basic': v
     }
     return b_comprehensive
+
+
+def build_all_continue(uid):
+    print('--------------- buid(%s) ---------------' % uid)
+    print(datetime.now(), '*** write(%s)' % uid)
+    write(uid)
+    print(datetime.now(), '#')
+    print(datetime.now(), '*** read(%s)' % uid)
+    b = read(uid)
+    print(datetime.now(), '#')
+    try:
+        print(datetime.now(), '*** select av from v_basic')
+        sql = 'select av from v_basic where av in (select av from videos where uid = %s)' % uid
+        result = db.execute(sql)
+        print(datetime.now(), '#')
+        for i,item in enumerate(b['videos']):
+            tmp = {'av': item['av']}
+            # tmp = {'av': '0'}
+            if tmp not in result:
+                try:
+                    print('进度：[%d/%d]' % (i+1,len(b['videos'])))
+                    print(datetime.now(), '*** write(%s)' % item['av'])
+                    video.write(item['av'])
+                    print(datetime.now(), '#')
+                    print(datetime.now(), '*** write_comprehensive(%s)' % item['av'])
+                    video.write_comprehensive(item['av'])
+                    print(datetime.now(), '#')
+                except Exception as e:
+                    print(e)
+    except Exception as e:
+        print(e)
+
+
+def all_bilibiliers():
+    sql = 'select uid from bilibiliers'
+    result = db.execute(sql)
+    return result

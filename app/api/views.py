@@ -4,6 +4,16 @@ from app import data_fetch
 from flask import jsonify, Response
 from app.data_access import video
 from app.data_access import bilibilier
+import shutil
+from app.data_access.DB import DB
+
+
+def init_directory():
+    root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir))
+    images_path = root_path + '/word_cloud_images/'
+    if os.path.exists(images_path):
+        shutil.rmtree(images_path)
+    os.mkdir(root_path + '/word_cloud_images/')
 
 
 @api.route('/bilibiliers/<string:uid>', methods=['GET'])
@@ -44,3 +54,27 @@ def ciyun_replies(av):
     img_path = root_path + '/word_cloud_images/av%s_r.png' % av
     image = video.read_image_stream(img_path)
     return Response(image, mimetype='image/png')
+
+
+@api.route('/build_all/<string:uid>', methods=['GET'])
+def build_all(uid):
+    try:
+        bilibilier.build_all_continue(uid)
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        print('>>@api.route(build_all)')
+        print(e)
+        return jsonify({'status': 'fail'})
+
+
+@api.route('/init', methods=['GET'])
+def init():
+    init_directory()
+    DB.reset()
+    return jsonify({'status': 'success'})
+
+
+@api.route('/all_bilibiliers', methods=['GET'])
+def all_bilibiliers():
+    result = bilibilier.all_bilibiliers()
+    return jsonify(result)

@@ -27,6 +27,9 @@ def danmu_v_time_distribution(danmus, length):
     distribution = [0]*N
     for item in danmus:
         index = int(float(item['time'])/length * N)
+        if index >= N:
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', index)
+            index = N-1
         distribution[index] += 1
     distribution = ','.join(str(i) for i in distribution)
     return distribution
