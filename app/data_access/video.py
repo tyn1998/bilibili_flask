@@ -256,7 +256,7 @@ def read_comprehensive(av):
         return result
     except Exception as e:
         print(e)
-        return 'read_comprehensive(%s) failed!' % av
+        return -1
 
 
 def read_image_stream(path):
