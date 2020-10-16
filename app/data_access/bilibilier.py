@@ -3,7 +3,7 @@ from app.data_access import video
 from app.data_access.DB import DB
 from datetime import datetime
 
-db = DB(passwd='TYn13646825688', db='bilibili_flask')
+db = DB(passwd='你的密码', db='bilibili_flask')
 
 
 def delete(uid):
